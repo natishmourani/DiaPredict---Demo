@@ -1,0 +1,42 @@
+{
+    "best_model_name": "Logistic Regression",
+    "metrics": {
+        "Logistic Regression": {
+            "Accuracy": 0.7532467532467533,
+            "Precision": 0.6666666666666666,
+            "Recall": 0.6181818181818182,
+            "F1 Score": 0.6415094339622641
+        },
+        "K-Nearest Neighbors": {
+            "Accuracy": 0.7142857142857143,
+            "Precision": 0.5873015873015873,
+            "Recall": 0.6727272727272727,
+            "F1 Score": 0.6271186440677966
+        },
+        "Decision Tree Classifier": {
+            "Accuracy": 0.7272727272727273,
+            "Precision": 0.6101694915254238,
+            "Recall": 0.6545454545454545,
+            "F1 Score": 0.631578947368421
+        },
+        "Random Forest Classifier": {
+            "Accuracy": 0.7402597402597403,
+            "Precision": 0.6229508196721312,
+            "Recall": 0.6909090909090909,
+            "F1 Score": 0.6551724137931034
+        }
+    },
+    "imputation_medians": {
+        "Glucose": 118.0,
+        "BloodPressure": 72.0,
+        "SkinThickness": 28.5,
+        "Insulin": 120.0,
+        "BMI": 32.0
+    },
+    "dataset_summary": {
+        "total_records": 768,
+        "num_features": 8,
+        "diabetic_count": 268,
+        "non_diabetic_count": 500
+    }
+}

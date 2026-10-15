@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiaPredict AI - Model Metrics</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Light/Blue Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-activity"></i>
+                <span>DiaPredict AI</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/comparison"><i class="bi bi-bar-chart me-1"></i> Models</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/analytics"><i class="bi bi-pie-chart me-1"></i> Analytics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/predict"><i class="bi bi-clipboard2-pulse me-1"></i> Predict</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <!-- Page Header -->
+        <div class="text-center mb-5">
+            <h1 class="display-5 fw-bold text-dark mb-2">Machine Learning <span class="text-primary">Evaluation Report</span></h1>
+            <p class="lead text-secondary max-width-600 mx-auto">
+                Compare performance metrics across trained models and view deployed configuration metrics.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Column: Metrics Table -->
+            <div class="col-lg-7">
+                <div class="medical-card-no-hover h-100">
+                    <h3 class="fw-bold mb-4 text-dark"><i class="bi bi-table text-primary me-2"></i> Evaluation Matrix</h3>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Model Name</th>
+                                    <th>Accuracy</th>
+                                    <th>Precision</th>
+                                    <th>Recall</th>
+                                    <th>F1 Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for name, item in metrics.items() %}
+                                <tr class="{% if name == best_model_name %}highlight-winner{% endif %}">
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            {% if name == 'Logistic Regression' %}
+                                                <span class="model-badge badge-logistic">LR</span>
+                                            {% elif name == 'K-Nearest Neighbors' %}
+                                                <span class="model-badge badge-knn">KNN</span>
+                                            {% elif name == 'Decision Tree Classifier' %}
+                                                <span class="model-badge badge-tree">DT</span>
+                                            {% elif name == 'Random Forest Classifier' %}
+                                                <span class="model-badge badge-forest">RF</span>
+                                            {% endif %}
+                                            <span class="text-dark fw-semibold">{{ name }}</span>
+                                            {% if name == best_model_name %}
+                                                <i class="bi bi-trophy-fill text-warning ms-1" title="Best Model Selected"></i>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td class="fw-semibold text-dark">{{ "%.4f"|format(item.Accuracy) }}</td>
+                                    <td>{{ "%.4f"|format(item.Precision) }}</td>
+                                    <td>{{ "%.4f"|format(item.Recall) }}</td>
+                                    <td>{{ "%.4f"|format(item.F1_Score) if 'F1_Score' in item else "%.4f"|format(item['F1 Score']) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Deployed Alert Banner -->
+                    <div class="p-3 rounded mt-4 border border-light-subtle bg-light">
+                        <h6 class="text-dark fw-bold mb-2"><i class="bi bi-shield-check-fill text-success me-2"></i> Model Deploy Criteria</h6>
+                        <p class="small text-secondary mb-0">
+                            The system automatically deploys the model with the highest test Accuracy. If accuracy scores are within a 0.5% boundary (close classification results), F1 Score is used to break ties. Based on evaluation, <strong>{{ best_model_name }}</strong> was selected for production.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Comparison Chart (Clickable for Popup) -->
+            <div class="col-lg-5">
+                <div class="medical-card-no-hover h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="fw-bold mb-0 text-dark"><i class="bi bi-image text-primary me-2"></i> Visual Metrics</h3>
+                        <span class="badge bg-light text-secondary border"><i class="bi bi-zoom-in me-1"></i> Click to Zoom</span>
+                    </div>
+                    <p class="text-secondary small mb-3">Click on the chart below to inspect performance details in a zoomed overlay modal.</p>
+                    <div class="zoomable-container" data-bs-toggle="modal" data-bs-target="#graphZoomModal" 
+                         data-graph-src="{{ url_for('static', filename='images/model_comparison.png') }}" 
+                         data-graph-title="Model Performance Metrics Comparison">
+                        <img src="{{ url_for('static', filename='images/model_comparison.png') }}" class="zoomable-graph" alt="Model Comparison Plot">
+                        <div class="zoom-overlay-icon">
+                            <i class="bi bi-zoom-in"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric Explanations Grid -->
+        <div class="medical-card-no-hover mt-5">
+            <h3 class="fw-bold mb-4 text-dark"><i class="bi bi-bookmark-fill text-primary me-2"></i> Understanding ML Metrics</h3>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="p-3 rounded bg-light border border-light-subtle h-100">
+                        <h6 class="text-dark fw-bold"><i class="bi bi-check-circle-fill text-success me-2"></i> Accuracy</h6>
+                        <p class="small text-secondary mb-0">Ratio of correct predictions to total observations. Measures general classifier correctness.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="p-3 rounded bg-light border border-light-subtle h-100">
+                        <h6 class="text-dark fw-bold"><i class="bi bi-bullseye text-primary me-2"></i> Precision</h6>
+                        <p class="small text-secondary mb-0">Percentage of positive predictions that are correct. Protects against false positive diagnoses.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="p-3 rounded bg-light border border-light-subtle h-100">
+                        <h6 class="text-dark fw-bold"><i class="bi bi-arrow-repeat text-warning me-2"></i> Recall (Sensitivity)</h6>
+                        <p class="small text-secondary mb-0">Percentage of actual positives correctly identified. Vital in medicine so no diabetic cases are missed.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="p-3 rounded bg-light border border-light-subtle h-100">
+                        <h6 class="text-dark fw-bold"><i class="bi bi-layers-half text-danger me-2"></i> F1 Score</h6>
+                        <p class="small text-secondary mb-0">Harmonic mean of Precision and Recall. Evaluates balanced classifier performance.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Popup for Graph Zoom -->
+    <div class="modal fade" id="graphZoomModal" tabindex="-1" aria-labelledby="graphZoomModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+                <div class="modal-header border-bottom border-light bg-light py-3 px-4">
+                    <h5 class="modal-title text-dark fw-bold" id="graphZoomModalLabel">Enlarged Visual Chart</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-4 bg-white">
+                    <img id="modalZoomedImg" src="" class="img-fluid rounded border shadow-sm" alt="Zoomed Graph">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto">
+        <div class="container text-center">
+            <p class="mb-1">DiaPredict AI — Professional Diagnostic Dashboard</p>
+            <p class="mb-0 text-secondary" style="font-size: 0.8rem;">Powered by Flask, Scikit-learn, and Bootstrap 5</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Graph Zoom Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const zoomContainers = document.querySelectorAll('.zoomable-container');
+            const modalImg = document.getElementById('modalZoomedImg');
+            const modalTitle = document.getElementById('graphZoomModalLabel');
+            
+            zoomContainers.forEach(container => {
+                container.addEventListener('click', function() {
+                    const src = this.getAttribute('data-graph-src');
+                    const title = this.getAttribute('data-graph-title') || 'Enlarged Chart';
+                    modalImg.src = src;
+                    modalTitle.textContent = title;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

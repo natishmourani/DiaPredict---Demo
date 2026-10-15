@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiaPredict AI - Diagnostic Report</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Light/Blue Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-activity"></i>
+                <span>DiaPredict AI</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/comparison"><i class="bi bi-bar-chart me-1"></i> Models</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/analytics"><i class="bi bi-pie-chart me-1"></i> Analytics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/predict"><i class="bi bi-clipboard2-pulse me-1"></i> Predict</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="medical-card-no-hover text-center">
+                    
+                    <span class="badge bg-light text-secondary border px-3 py-2 mb-3"><i class="bi bi-clipboard-pulse me-1"></i> Diagnostic Analysis Output</span>
+                    <h2 class="display-6 fw-bold text-dark mb-4">Patient Diagnosis <span class="text-primary">Result</span></h2>
+
+                    <!-- Result Circular Progress Gauge (Light mode) -->
+                    <div class="result-circle-container">
+                        {% if risk_class == 'Low Risk' %}
+                            <div class="result-circle-bg result-circle-low">
+                                <span class="result-label">Confidence</span>
+                                <span class="result-value text-success">{{ "%.2f"|format(confidence) }}%</span>
+                            </div>
+                        {% elif risk_class == 'Medium Risk' %}
+                            <div class="result-circle-bg result-circle-medium">
+                                <span class="result-label">Confidence</span>
+                                <span class="result-value text-warning" style="color: #b58400 !important;">{{ "%.2f"|format(confidence) }}%</span>
+                            </div>
+                        {% else %}
+                            <div class="result-circle-bg result-circle-high">
+                                <span class="result-label">Confidence</span>
+                                <span class="result-value text-danger">{{ "%.2f"|format(confidence) }}%</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Risk Output Card Header -->
+                    <div class="mb-4">
+                        <h4 class="text-dark mb-2">
+                            Prediction: 
+                            {% if prediction == 1 %}
+                                <span class="text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill"></i> Diabetic</span>
+                            {% else %}
+                                <span class="text-success fw-bold"><i class="bi bi-check-circle-fill"></i> Non-Diabetic</span>
+                            {% endif %}
+                        </h4>
+                        
+                        <!-- Risk Classification Pill -->
+                        {% if risk_class == 'Low Risk' %}
+                            <span class="badge-risk badge-risk-low"><i class="bi bi-shield-check me-2"></i>Low Risk (0% – 40%)</span>
+                        {% elif risk_class == 'Medium Risk' %}
+                            <span class="badge-risk badge-risk-medium"><i class="bi bi-shield-exclamation me-2"></i>Medium Risk (41% – 70%)</span>
+                        {% else %}
+                            <span class="badge-risk badge-risk-high"><i class="bi bi-shield-fill-x me-2"></i>High Risk (71% – 100%)</span>
+                        {% endif %}
+                    </div>
+
+                    <p class="text-secondary small max-width-600 mx-auto mb-5">
+                        This medical evaluation was generated by the active production model (<strong>{{ best_model_name }}</strong>) following normalization and feature scaling check.
+                    </p>
+
+                    <!-- Recommendations (Bonus Marks feature 1) -->
+                    <div class="text-start mb-5">
+                        <h4 class="text-dark mb-4 fw-bold border-bottom pb-2 border-light-subtle">
+                            <i class="bi bi-heart-pulse-fill text-danger me-2"></i>Lifestyle Recommendations
+                        </h4>
+
+                        {% if prediction == 1 %}
+                            <!-- Diabetic recommendations -->
+                            <div class="rec-card border border-danger-subtle bg-danger-subtle bg-opacity-10">
+                                <div class="rec-icon rec-icon-high"><i class="bi bi-telephone-outbound"></i></div>
+                                <div>
+                                    <h6 class="text-dark mb-1 fw-bold">Consult a Doctor</h6>
+                                    <p class="small text-secondary mb-0">Please schedule an appointment with an endocrinologist or primary care physician for a formal clinical test and checkup.</p>
+                                </div>
+                            </div>
+                            <div class="rec-card border border-warning-subtle bg-warning-subtle bg-opacity-10">
+                                <div class="rec-icon rec-icon-medium"><i class="bi bi-droplet-half"></i></div>
+                                <div>
+                                    <h6 class="text-dark mb-1 fw-bold">Regular Glucose Monitoring</h6>
+                                    <p class="small text-secondary mb-0">Measure fasting and post-meal blood sugar levels consistently as directed by your physician to track metabolic reactions.</p>
+                                </div>
+                            </div>
+                            <div class="rec-card border border-warning-subtle bg-warning-subtle bg-opacity-10">
+                                <div class="rec-icon rec-icon-medium"><i class="bi bi-bicycle"></i></div>
+                                <div>
+                                    <h6 class="text-dark mb-1 fw-bold">Exercise Regularly</h6>
+                                    <p class="small text-secondary mb-0">Aim for at least 150 minutes of moderate aerobic physical activity (e.g. brisk walking) weekly to reduce insulin resistance.</p>
+                                </div>
+                            </div>
+                            <div class="rec-card border border-success-subtle bg-success-subtle bg-opacity-10">
+                                <div class="rec-icon rec-icon-low"><i class="bi bi-egg-fried"></i></div>
+                                <div>
+                                    <h6 class="text-dark mb-1 fw-bold">Balanced Healthy Diet</h6>
+                                    <p class="small text-secondary mb-0">Adopt a nutrient-dense, fiber-rich diet with low-glycemic foods. Restrict simple sugars and processed carbohydrates.</p>
+                                </div>
+                            </div>
+                        {% else %}
+                            <!-- Non-diabetic recommendations -->
+                            <div class="rec-card border border-success-subtle bg-success-subtle bg-opacity-10">
+                                <div class="rec-icon rec-icon-low"><i class="bi bi-shield-check"></i></div>
+                                <div>
+                                    <h6 class="text-dark mb-1 fw-bold">Maintain Healthy Lifestyle</h6>
+                                    <p class="small text-secondary mb-0">Your current parameters indicate low probability. Maintain physical exercise, a balanced diet, and healthy weight index to sustain these levels.</p>
+                                </div>
+                            </div>
+                            <div class="rec-card border border-light-subtle bg-light">
+                                <div class="rec-icon rec-icon-low" style="background-color: rgba(13,110,253,0.1); color: var(--primary);"><i class="bi bi-calendar3"></i></div>
+                                <div>
+                                    <h6 class="text-dark mb-1 fw-bold">Preventative Screening</h6>
+                                    <p class="small text-secondary mb-0">Perform routine physical checkups and clinical blood panels annually to identify changes in metabolics early.</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Input Parameters Table -->
+                    <div class="text-start mb-5">
+                        <h4 class="text-dark mb-4 fw-bold border-bottom pb-2 border-light-subtle">
+                            <i class="bi bi-file-medical text-primary me-2"></i>Evaluated Patient Vitals
+                        </h4>
+                        <div class="table-responsive border rounded">
+                            <table class="table table-custom mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Vitals Parameter</th>
+                                        <th>Input Value</th>
+                                        <th>Imputed Value*</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="{% if input_vitals.Pregnancies == 0 %}table-light{% endif %}">
+                                        <td>Pregnancies</td>
+                                        <td class="fw-semibold text-dark">{{ input_vitals.Pregnancies|int }}</td>
+                                        <td>—</td>
+                                    </tr>
+                                    <tr class="{% if input_vitals.Glucose == 0 or was_imputed.Glucose %}table-warning{% endif %}">
+                                        <td>Glucose</td>
+                                        <td class="fw-semibold text-dark">{{ input_vitals.Glucose|int }} mg/dL</td>
+                                        <td>{% if input_vitals.Glucose == 0 or was_imputed.Glucose %}<span class="text-dark fw-bold">{{ "%.1f"|format(impute_values.Glucose) }} mg/dL</span>{% else %}—{% endif %}</td>
+                                    </tr>
+                                    <tr class="{% if input_vitals.BloodPressure == 0 or was_imputed.BloodPressure %}table-warning{% endif %}">
+                                        <td>Blood Pressure</td>
+                                        <td class="fw-semibold text-dark">{{ input_vitals.BloodPressure|int }} mm Hg</td>
+                                        <td>{% if input_vitals.BloodPressure == 0 or was_imputed.BloodPressure %}<span class="text-dark fw-bold">{{ "%.1f"|format(impute_values.BloodPressure) }} mm Hg</span>{% else %}—{% endif %}</td>
+                                    </tr>
+                                    <tr class="{% if input_vitals.SkinThickness == 0 or was_imputed.SkinThickness %}table-warning{% endif %}">
+                                        <td>Skin Fold Thickness</td>
+                                        <td class="fw-semibold text-dark">{{ input_vitals.SkinThickness|int }} mm</td>
+                                        <td>{% if input_vitals.SkinThickness == 0 or was_imputed.SkinThickness %}<span class="text-dark fw-bold">{{ "%.1f"|format(impute_values.SkinThickness) }} mm</span>{% else %}—{% endif %}</td>
+                                    </tr>
+                                    <tr class="{% if input_vitals.Insulin == 0 or was_imputed.Insulin %}table-warning{% endif %}">
+                                        <td>Insulin</td>
+                                        <td class="fw-semibold text-dark">{{ input_vitals.Insulin|int }} mu U/ml</td>
+                                        <td>{% if input_vitals.Insulin == 0 or was_imputed.Insulin %}<span class="text-dark fw-bold">{{ "%.1f"|format(impute_values.Insulin) }} mu U/ml</span>{% else %}—{% endif %}</td>
+                                    </tr>
+                                    <tr class="{% if input_vitals.BMI == 0 or was_imputed.BMI %}table-warning{% endif %}">
+                                        <td>BMI</td>
+                                        <td class="fw-semibold text-dark">{{ "%.1f"|format(input_vitals.BMI) }}</td>
+                                        <td>{% if input_vitals.BMI == 0 or was_imputed.BMI %}<span class="text-dark fw-bold">{{ "%.1f"|format(input_vitals.BMI) }}</span>{% else %}—{% endif %}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Diabetes Pedigree Function</td>
+                                        <td class="fw-semibold text-dark">{{ "%.3f"|format(input_vitals.DiabetesPedigreeFunction) }}</td>
+                                        <td>—</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Age</td>
+                                        <td class="fw-semibold text-dark">{{ input_vitals.Age|int }} years</td>
+                                        <td>—</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="small text-muted mt-2 ps-1">
+                            *Note: 0 values are clinically invalid for Glucose, Blood Pressure, Skin Fold Thickness, Insulin, and BMI. If zeros were submitted, they were automatically replaced with training-set median values (highlighted in yellow) to protect prediction reliability.
+                        </div>
+                    </div>
+
+                    <!-- Return Buttons -->
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="/predict" class="btn btn-primary-custom px-4 py-3"><i class="bi bi-arrow-repeat me-2"></i> Diagnosed Another Patient</a>
+                        <a href="/" class="btn btn-secondary-custom px-4 py-3"><i class="bi bi-house-door me-2"></i> Home Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto">
+        <div class="container text-center">
+            <p class="mb-1">DiaPredict AI — Professional Diagnostic Dashboard</p>
+            <p class="mb-0 text-secondary" style="font-size: 0.8rem;">Powered by Flask, Scikit-learn, and Bootstrap 5</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

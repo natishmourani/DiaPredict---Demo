@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiaPredict AI - Clinical Home</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Light/Blue Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-activity"></i>
+                <span>DiaPredict AI</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/"><i class="bi bi-house-door me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/comparison"><i class="bi bi-bar-chart me-1"></i> Models</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/analytics"><i class="bi bi-pie-chart me-1"></i> Analytics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/predict"><i class="bi bi-clipboard2-pulse me-1"></i> Predict</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="section-bg py-5 border-bottom border-light-subtle">
+        <div class="container">
+            <div class="row align-items-center py-4">
+                <div class="col-lg-7">
+                    <h1 class="display-4 fw-extrabold mb-3 text-dark">Predictive Diagnosis for <span class="text-primary">Diabetes Risk</span></h1>
+                    <p class="lead text-secondary mb-4">
+                        DiaPredict AI is a professional diagnostic dashboard that helps healthcare workers assess diabetic risks using verified patient vitals. The backend dynamically trains and deploys the best performing classifier.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="/predict" class="btn btn-primary-custom px-4 py-3"><i class="bi bi-heart-pulse-fill me-2"></i> Start Diagnosis</a>
+                        <a href="/comparison" class="btn btn-secondary-custom px-4 py-3"><i class="bi bi-cpu-fill me-2"></i> Deploy Metrics</a>
+                    </div>
+                </div>
+                <div class="col-lg-5 mt-4 mt-lg-0">
+                    <!-- Active Model Info Card -->
+                    <div class="medical-card-no-hover">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="mb-0 text-dark"><i class="bi bi-check-circle-fill text-success me-2"></i> Deployed Model</h5>
+                            <span class="status-badge">Active</span>
+                        </div>
+                        <p class="text-secondary small">
+                            Logistic Regression was automatically selected as the active model because it achieved the highest test accuracy on the target dataset.
+                        </p>
+                        <div class="p-3 rounded mb-4 border border-light-subtle bg-light">
+                            <div class="small text-secondary mb-1">DEPLOYED CLASSIFIER</div>
+                            <h3 class="text-primary fw-bold mb-0">{{ best_model_name }}</h3>
+                        </div>
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="small text-secondary">Accuracy</div>
+                                <div class="h5 fw-bold text-dark mb-0">{{ "%.2f"|format(metrics[best_model_name]['Accuracy'] * 100) }}%</div>
+                            </div>
+                            <div class="col-4 border-start border-end border-light-subtle">
+                                <div class="small text-secondary">F1 Score</div>
+                                <div class="h5 fw-bold text-dark mb-0">{{ "%.2f"|format(metrics[best_model_name]['F1 Score'] * 100) }}%</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="small text-secondary">Recall</div>
+                                <div class="h5 fw-bold text-dark mb-0">{{ "%.2f"|format(metrics[best_model_name]['Recall'] * 100) }}%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="container my-5">
+        <!-- Dataset Summary Cards -->
+        <h2 class="h3 fw-bold mb-4 text-dark"><i class="bi bi-database me-2 text-primary"></i> Dataset Profile</h2>
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="medical-card text-center py-4">
+                    <i class="bi bi-folder-fill display-6 text-primary mb-2"></i>
+                    <h3 class="fw-bold mb-1 text-dark">{{ dataset_summary.total_records }}</h3>
+                    <p class="text-secondary mb-0">Total Patients</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="medical-card text-center py-4">
+                    <i class="bi bi-list-stars display-6 text-success mb-2"></i>
+                    <h3 class="fw-bold mb-1 text-dark">{{ dataset_summary.num_features }}</h3>
+                    <p class="text-secondary mb-0">Clinical Features</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="medical-card text-center py-4">
+                    <i class="bi bi-heartbreak-fill display-6 text-danger mb-2"></i>
+                    <h3 class="fw-bold mb-1 text-dark">{{ dataset_summary.diabetic_count }}</h3>
+                    <p class="text-secondary mb-0">Diabetic Cohort (1)</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="medical-card text-center py-4">
+                    <i class="bi bi-heart-fill display-6 text-primary mb-2"></i>
+                    <h3 class="fw-bold mb-1 text-dark">{{ dataset_summary.non_diabetic_count }}</h3>
+                    <p class="text-secondary mb-0">Non-Diabetic Cohort (0)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clinical Feature Reference -->
+        <div class="medical-card-no-hover mb-5">
+            <h3 class="fw-bold mb-4 text-dark"><i class="bi bi-info-circle me-2 text-primary"></i> Diagnostic Indicators</h3>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="p-3 rounded bg-light border border-light-subtle h-100">
+                        <h5 class="text-dark small fw-bold"><i class="bi bi-gender-female text-primary me-2"></i> Pregnancies</h5>
+                        <p class="small text-secondary mb-0">Number of pregnancies. Helps correlate endocrine changes with insulin response.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="p-3 rounded bg-light border border-light-subtle h-100">
+                        <h5 class="text-dark small fw-bold"><i class="bi bi-egg-fried text-primary me-2"></i> Glucose</h5>
+                        <p class="small text-secondary mb-0">Plasma glucose concentration. The key clinical metric for evaluating insulin production.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="p-3 rounded bg-light border border-light-subtle h-100">
+                        <h5 class="text-dark small fw-bold"><i class="bi bi-droplet-half text-primary me-2"></i> Blood Pressure</h5>
+                        <p class="small text-secondary mb-0">Diastolic blood pressure (mm Hg). Used to check cardiovascular symptoms.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="p-3 rounded bg-light border border-light-subtle h-100">
+                        <h5 class="text-dark small fw-bold"><i class="bi bi-align-middle text-primary me-2"></i> Skin Thickness</h5>
+                        <p class="small text-secondary mb-0">Triceps skin fold thickness (mm). Correlates skin fold depth with obesity indicators.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mt-md-4">
+                    <div class="p-3 rounded bg-light border border-light-subtle h-100">
+                        <h5 class="text-dark small fw-bold"><i class="bi bi-capsule text-primary me-2"></i> Insulin</h5>
+                        <p class="small text-secondary mb-0">2-Hour serum insulin (mu U/ml). Direct measure of blood glucose balancing hormone.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mt-md-4">
+                    <div class="p-3 rounded bg-light border border-light-subtle h-100">
+                        <h5 class="text-dark small fw-bold"><i class="bi bi-speedometer2 text-primary me-2"></i> BMI</h5>
+                        <p class="small text-secondary mb-0">Body mass index (weight/height²). Principal indicator of weight-related health risks.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mt-md-4">
+                    <div class="p-3 rounded bg-light border border-light-subtle h-100">
+                        <h5 class="text-dark small fw-bold"><i class="bi bi-diagram-3 text-primary me-2"></i> DPF</h5>
+                        <p class="small text-secondary mb-0">Diabetes Pedigree Function. Formulates hereditary risk factors from family history.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mt-md-4">
+                    <div class="p-3 rounded bg-light border border-light-subtle h-100">
+                        <h5 class="text-dark small fw-bold"><i class="bi bi-person text-primary me-2"></i> Age</h5>
+                        <p class="small text-secondary mb-0">Age of the patient. Risk ranges generally increase with advancing years.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto">
+        <div class="container text-center">
+            <p class="mb-1">DiaPredict AI — Professional Diagnostic Dashboard</p>
+            <p class="mb-0 text-secondary" style="font-size: 0.8rem;">Powered by Flask, Scikit-learn, and Bootstrap 5</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

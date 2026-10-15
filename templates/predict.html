@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiaPredict AI - Diagnosis Entry</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Light/Blue Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-activity"></i>
+                <span>DiaPredict AI</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/comparison"><i class="bi bi-bar-chart me-1"></i> Models</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/analytics"><i class="bi bi-pie-chart me-1"></i> Analytics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/predict"><i class="bi bi-clipboard2-pulse me-1"></i> Predict</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="medical-card-no-hover">
+                    <div class="text-center mb-5">
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle mb-2">Patient Diagnostic Portal</span>
+                        <h2 class="display-6 fw-bold text-dark mb-2">Vitals Input <span class="text-primary">Console</span></h2>
+                        <p class="text-secondary max-width-600 mx-auto mb-0">
+                            Enter the patient's current parameters. The active classifier model (<strong>{{ best_model_name }}</strong>) will evaluate the inputs and return predictive risk statistics.
+                        </p>
+                    </div>
+
+                    <!-- Form -->
+                    <form action="/result" method="POST" class="needs-validation" novalidate>
+                        <div class="row g-4">
+                            <!-- Pregnancies -->
+                            <div class="col-md-6">
+                                <label for="pregnancies" class="form-label-custom">
+                                    <i class="bi bi-gender-female text-primary me-2"></i>Pregnancies
+                                </label>
+                                <input type="number" class="form-control form-control-custom w-100" id="pregnancies" name="pregnancies" 
+                                       placeholder="e.g., 2" min="0" max="25" required>
+                                <div class="form-text text-muted" style="font-size: 0.75rem;">Total times pregnant (0 for males/none).</div>
+                            </div>
+
+                            <!-- Glucose -->
+                            <div class="col-md-6">
+                                <label for="glucose" class="form-label-custom">
+                                    <i class="bi bi-egg-fried text-primary me-2"></i>Glucose Concentration (mg/dL)
+                                </label>
+                                <input type="number" class="form-control form-control-custom w-100" id="glucose" name="glucose" 
+                                       placeholder="e.g., 120" min="0" max="300" required>
+                                <div class="form-text text-muted" style="font-size: 0.75rem;">2-hour oral glucose tolerance test value.</div>
+                            </div>
+
+                            <!-- Blood Pressure -->
+                            <div class="col-md-6">
+                                <label for="bloodpressure" class="form-label-custom">
+                                    <i class="bi bi-droplet-half text-primary me-2"></i>Diastolic Blood Pressure (mm Hg)
+                                </label>
+                                <input type="number" class="form-control form-control-custom w-100" id="bloodpressure" name="bloodpressure" 
+                                       placeholder="e.g., 80" min="0" max="200" required>
+                                <div class="form-text text-muted" style="font-size: 0.75rem;">Diastolic reading. Typical values range 60-120.</div>
+                            </div>
+
+                            <!-- Skin Thickness -->
+                            <div class="col-md-6">
+                                <label for="skinthickness" class="form-label-custom">
+                                    <i class="bi bi-align-middle text-primary me-2"></i>Triceps Skin Fold Thickness (mm)
+                                </label>
+                                <input type="number" class="form-control form-control-custom w-100" id="skinthickness" name="skinthickness" 
+                                       placeholder="e.g., 25" min="0" max="99" required>
+                                <div class="form-text text-muted" style="font-size: 0.75rem;">Skin fold thickness. Input 0 if unknown (auto-imputed).</div>
+                            </div>
+
+                            <!-- Insulin -->
+                            <div class="col-md-6">
+                                <label for="insulin" class="form-label-custom">
+                                    <i class="bi bi-capsule text-primary me-2"></i>Insulin Level (mu U/ml)
+                                </label>
+                                <input type="number" class="form-control form-control-custom w-100" id="insulin" name="insulin" 
+                                       placeholder="e.g., 85" min="0" max="900" required>
+                                <div class="form-text text-muted" style="font-size: 0.75rem;">2-hour serum insulin. Input 0 if unknown (auto-imputed).</div>
+                            </div>
+
+                            <!-- BMI -->
+                            <div class="col-md-6">
+                                <label for="bmi" class="form-label-custom">
+                                    <i class="bi bi-speedometer2 text-primary me-2"></i>Body Mass Index (BMI)
+                                </label>
+                                <input type="number" step="0.1" class="form-control form-control-custom w-100" id="bmi" name="bmi" 
+                                       placeholder="e.g., 26.5" min="0" max="70" required>
+                                <div class="form-text text-muted" style="font-size: 0.75rem;">Weight index (kg/m²). Input 0 if unknown (auto-imputed).</div>
+                            </div>
+
+                            <!-- Diabetes Pedigree Function -->
+                            <div class="col-md-6">
+                                <label for="dpf" class="form-label-custom">
+                                    <i class="bi bi-diagram-3 text-primary me-2"></i>Diabetes Pedigree Function (DPF)
+                                </label>
+                                <input type="number" step="0.001" class="form-control form-control-custom w-100" id="dpf" name="dpf" 
+                                       placeholder="e.g., 0.351" min="0.0" max="3.0" required>
+                                <div class="form-text text-muted" style="font-size: 0.75rem;">Pedigree index representing family influence. Range 0.0-3.0.</div>
+                            </div>
+
+                            <!-- Age -->
+                            <div class="col-md-6">
+                                <label for="age" class="form-label-custom">
+                                    <i class="bi bi-person text-primary me-2"></i>Age (years)
+                                </label>
+                                <input type="number" class="form-control form-control-custom w-100" id="age" name="age" 
+                                       placeholder="e.g., 35" min="1" max="120" required>
+                                <div class="form-text text-muted" style="font-size: 0.75rem;">Patient age. Must be at least 21 years old.</div>
+                            </div>
+                        </div>
+
+                        <!-- Form submission -->
+                        <div class="text-center mt-5">
+                            <button type="submit" class="btn btn-primary-custom px-5 py-3 fs-5">
+                                <i class="bi bi-heart-pulse me-2"></i> Run Diagnostic Evaluation
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto">
+        <div class="container text-center">
+            <p class="mb-1">DiaPredict AI — Professional Diagnostic Dashboard</p>
+            <p class="mb-0 text-secondary" style="font-size: 0.8rem;">Powered by Flask, Scikit-learn, and Bootstrap 5</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom Client-side validation styling -->
+    <script>
+        (() => {
+            'use strict'
+            const forms = document.querySelectorAll('.needs-validation')
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiaPredict AI - Dataset Analytics</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Light/Blue Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-activity"></i>
+                <span>DiaPredict AI</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/comparison"><i class="bi bi-bar-chart me-1"></i> Models</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/analytics"><i class="bi bi-pie-chart me-1"></i> Analytics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/predict"><i class="bi bi-clipboard2-pulse me-1"></i> Predict</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <!-- Page Header -->
+        <div class="text-center mb-5">
+            <h1 class="display-5 fw-bold text-dark mb-2">Exploratory <span class="text-primary">Data Analysis</span></h1>
+            <p class="lead text-secondary max-width-600 mx-auto">
+                Explore feature balances and correlation patterns on the Pima Indians Diabetes Dataset. Click any graph to zoom.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Outcome Distribution -->
+            <div class="col-lg-5">
+                <div class="medical-card-no-hover h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="fw-bold mb-0 text-dark"><i class="bi bi-pie-chart-fill text-primary me-2"></i> Class Balances</h4>
+                        <span class="badge bg-light text-secondary border"><i class="bi bi-zoom-in me-1"></i> Click to Zoom</span>
+                    </div>
+                    <p class="text-secondary small">
+                        Class ratio (Diabetic vs Non-Diabetic) of the dataset. This profile governs default accuracy requirements.
+                    </p>
+                    <div class="zoomable-container" data-bs-toggle="modal" data-bs-target="#graphZoomModal" 
+                         data-graph-src="{{ url_for('static', filename='images/outcome_dist.png') }}" 
+                         data-graph-title="Outcome Class Distribution">
+                        <img src="{{ url_for('static', filename='images/outcome_dist.png') }}" class="zoomable-graph" alt="Outcome Distribution">
+                        <div class="zoom-overlay-icon">
+                            <i class="bi bi-zoom-in"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Correlation Heatmap -->
+            <div class="col-lg-7">
+                <div class="medical-card-no-hover h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="fw-bold mb-0 text-dark"><i class="bi bi-grid-3x3 text-primary me-2"></i> Correlation Heatmap</h4>
+                        <span class="badge bg-light text-secondary border"><i class="bi bi-zoom-in me-1"></i> Click to Zoom</span>
+                    </div>
+                    <p class="text-secondary small">
+                        Pearson correlation matrix mapping linear relations. Darker red/blue cells identify strongly linked variables.
+                    </p>
+                    <div class="zoomable-container" data-bs-toggle="modal" data-bs-target="#graphZoomModal" 
+                         data-graph-src="{{ url_for('static', filename='images/correlation_heatmap.png') }}" 
+                         data-graph-title="Feature Correlation Heatmap">
+                        <img src="{{ url_for('static', filename='images/correlation_heatmap.png') }}" class="zoomable-graph" alt="Feature Correlation Matrix">
+                        <div class="zoom-overlay-icon">
+                            <i class="bi bi-zoom-in"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demographics and Vitals Distribution Grid -->
+        <div class="medical-card-no-hover mt-5">
+            <h3 class="fw-bold mb-4 text-dark"><i class="bi bi-heart-pulse-fill text-primary me-2"></i> Patient Vitals Distribution</h3>
+            <p class="text-secondary mb-4">
+                Clinical indicators distributions highlighting differences between non-diabetic and diabetic patient populations.
+            </p>
+            <div class="row g-4">
+                <!-- Glucose -->
+                <div class="col-md-4">
+                    <div class="p-3 rounded bg-light border border-light-subtle h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="text-dark fw-bold mb-0">Plasma Glucose</h6>
+                            <i class="bi bi-zoom-in text-secondary small" style="cursor: pointer;" title="Zoom"></i>
+                        </div>
+                        <div class="zoomable-container py-2 mb-0" data-bs-toggle="modal" data-bs-target="#graphZoomModal" 
+                             data-graph-src="{{ url_for('static', filename='images/glucose_dist.png') }}" 
+                             data-graph-title="Plasma Glucose Distribution by Outcome">
+                            <img src="{{ url_for('static', filename='images/glucose_dist.png') }}" class="zoomable-graph" alt="Glucose Distribution">
+                            <div class="zoom-overlay-icon">
+                                <i class="bi bi-zoom-in"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- BMI -->
+                <div class="col-md-4">
+                    <div class="p-3 rounded bg-light border border-light-subtle h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="text-dark fw-bold mb-0">Body Mass Index (BMI)</h6>
+                            <i class="bi bi-zoom-in text-secondary small" style="cursor: pointer;" title="Zoom"></i>
+                        </div>
+                        <div class="zoomable-container py-2 mb-0" data-bs-toggle="modal" data-bs-target="#graphZoomModal" 
+                             data-graph-src="{{ url_for('static', filename='images/bmi_dist.png') }}" 
+                             data-graph-title="BMI Distribution by Outcome">
+                            <img src="{{ url_for('static', filename='images/bmi_dist.png') }}" class="zoomable-graph" alt="BMI Distribution">
+                            <div class="zoom-overlay-icon">
+                                <i class="bi bi-zoom-in"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Age -->
+                <div class="col-md-4">
+                    <div class="p-3 rounded bg-light border border-light-subtle h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="text-dark fw-bold mb-0">Patient Age</h6>
+                            <i class="bi bi-zoom-in text-secondary small" style="cursor: pointer;" title="Zoom"></i>
+                        </div>
+                        <div class="zoomable-container py-2 mb-0" data-bs-toggle="modal" data-bs-target="#graphZoomModal" 
+                             data-graph-src="{{ url_for('static', filename='images/age_dist.png') }}" 
+                             data-graph-title="Age Distribution by Outcome">
+                            <img src="{{ url_for('static', filename='images/age_dist.png') }}" class="zoomable-graph" alt="Age Distribution">
+                            <div class="zoom-overlay-icon">
+                                <i class="bi bi-zoom-in"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Popup for Graph Zoom -->
+    <div class="modal fade" id="graphZoomModal" tabindex="-1" aria-labelledby="graphZoomModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+                <div class="modal-header border-bottom border-light bg-light py-3 px-4">
+                    <h5 class="modal-title text-dark fw-bold" id="graphZoomModalLabel">Enlarged Visual Chart</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-4 bg-white">
+                    <img id="modalZoomedImg" src="" class="img-fluid rounded border shadow-sm" alt="Zoomed Graph">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto">
+        <div class="container text-center">
+            <p class="mb-1">DiaPredict AI — Professional Diagnostic Dashboard</p>
+            <p class="mb-0 text-secondary" style="font-size: 0.8rem;">Powered by Flask, Scikit-learn, and Bootstrap 5</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Graph Zoom Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const zoomContainers = document.querySelectorAll('.zoomable-container');
+            const modalImg = document.getElementById('modalZoomedImg');
+            const modalTitle = document.getElementById('graphZoomModalLabel');
+            
+            zoomContainers.forEach(container => {
+                container.addEventListener('click', function() {
+                    const src = this.getAttribute('data-graph-src');
+                    const title = this.getAttribute('data-graph-title') || 'Enlarged Chart';
+                    modalImg.src = src;
+                    modalTitle.textContent = title;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
